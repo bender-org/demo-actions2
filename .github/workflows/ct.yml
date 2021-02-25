@@ -39,11 +39,21 @@ jobs:
       ##########################
       - name: Checkout Code
         uses: actions/checkout@v2
+        
+      
+      - name: Wait for app build success
+        uses: fountainhead/action-wait-for-check@v1.0.0
+        id: wait-for-build-success
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: CI
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       ################################
       # Run Linter against code base #
       ################################
       - name: Lint Code Base
+        if: steps.wait-for-build-success.outputs.conclusion == 'success'
         uses: github/super-linter@v3
         env:
           VALIDATE_ALL_CODEBASE: false
